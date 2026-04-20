@@ -13,6 +13,7 @@ export default function SlotPicker({ user, onSignOut }: Props) {
   const { groups, loading, error, refetch } = useSlots();
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [booked, setBooked] = useState(false);
+  const [zoomUrl, setZoomUrl] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     await fetch('/api/auth/signout', { method: 'POST' });
@@ -29,9 +30,19 @@ export default function SlotPicker({ user, onSignOut }: Props) {
             Check your email for a calendar invite from Ken &amp; CJ.
           </p>
         </div>
+        {zoomUrl && (
+          <a
+            href={zoomUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 bg-ot-black text-ot-yellow font-display text-lg rounded-xl py-4 active:scale-95 transition-transform shadow-lg"
+          >
+            Join Zoom Meeting
+          </a>
+        )}
         <button
-          onClick={() => { setBooked(false); refetch(); }}
-          className="bg-ot-black text-white font-semibold rounded-xl px-8 py-3 active:scale-95 transition-transform"
+          onClick={() => { setBooked(false); setZoomUrl(null); refetch(); }}
+          className="bg-white/60 text-ot-black font-semibold rounded-xl px-8 py-3 active:scale-95 transition-transform"
         >
           View more slots
         </button>
@@ -124,7 +135,7 @@ export default function SlotPicker({ user, onSignOut }: Props) {
         <BookingModal
           slot={selectedSlot}
           onClose={() => setSelectedSlot(null)}
-          onBooked={() => { setSelectedSlot(null); setBooked(true); }}
+          onBooked={(url) => { setSelectedSlot(null); setZoomUrl(url ?? null); setBooked(true); }}
         />
       )}
     </div>

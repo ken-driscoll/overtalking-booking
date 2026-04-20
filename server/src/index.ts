@@ -1,12 +1,16 @@
+import { config } from 'dotenv';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+config({ path: resolve(__dirname, '../../.env') });
+
 import express from 'express';
 import cookieSession from 'cookie-session';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import slotsRouter from './routes/slots.js';
 import bookRouter from './routes/book.js';
 import authRouter from './routes/auth.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -27,7 +31,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/slots', slotsRouter);
 app.use('/api/book', bookRouter);
 
-// Serve built React app in production
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, '../../client/dist');
   app.use(express.static(clientDist));

@@ -4,7 +4,7 @@ import type { Slot } from '../hooks/useSlots.ts';
 interface Props {
   slot: Slot;
   onClose: () => void;
-  onBooked: () => void;
+  onBooked: (zoomUrl?: string) => void;
 }
 
 export default function BookingModal({ slot, onClose, onBooked }: Props) {
@@ -43,7 +43,8 @@ export default function BookingModal({ slot, onClose, onBooked }: Props) {
         const data = await res.json() as { error?: string };
         throw new Error(data.error ?? 'Booking failed');
       }
-      onBooked();
+      const data = await res.json() as { zoomJoinUrl?: string };
+      onBooked(data.zoomJoinUrl);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Booking failed');
       setSubmitting(false);

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createEvent } from '../lib/google-calendar.js';
+import { createZoomMeeting } from '../lib/zoom.js';
 
 const router = Router();
 
@@ -30,6 +31,15 @@ router.post('/', async (req, res) => {
 
   const summary = topic?.trim() ? topic.trim() : 'Recording';
 
+  // Create Zoom meeting first
+  let zoomJoinUrl: string | undefined;
+  try {
+    const zoom = await createZoomMeeting(summary, start);
+    zoomJoinUrl = zoom.joinUrl;
+  } catch (err) {
+    console.error('Zoom meeting creation failed (continuing without it):', err);
+  }
+
   try {
     const eventLink = await createEvent(process.env.RECORDINGS_CALENDAR_ID!, {
       start,
@@ -37,9 +47,10 @@ router.post('/', async (req, res) => {
       summary,
       guestEmail: user.email,
       guestName: user.name,
+      zoomJoinUrl,
     });
 
-    res.json({ ok: true, eventLink });
+    res.json({ ok: true, eventLink, zoomJoinUrl });
   } catch (err) {
     console.error('Failed to create booking:', err);
     res.status(500).json({ error: 'Failed to create booking' });

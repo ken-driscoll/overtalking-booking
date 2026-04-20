@@ -11,21 +11,33 @@ export interface Slot {
   label: string; // e.g. "7:00 PM – 8:00 PM"
 }
 
-function weekdaySlots(localDate: Date): Array<{ hour: number }> {
-  return [{ hour: 19 }]; // 7pm CT
+interface Candidate { hour: number; minute: number }
+
+function weekdaySlots(): Candidate[] {
+  return [{ hour: 19, minute: 0 }]; // 7:00 PM CT
 }
 
-function weekendSlots(localDate: Date): Array<{ hour: number }> {
-  return [{ hour: 13 }, { hour: 14 }, { hour: 15 }]; // 1pm, 2pm, 3pm CT
+function weekendSlots(): Candidate[] {
+  // On-the-hour and half-hour slots from 1pm, ending by 4pm
+  return [
+    { hour: 13, minute: 0  }, // 1:00 – 2:00
+    { hour: 13, minute: 30 }, // 1:30 – 2:30
+    { hour: 14, minute: 0  }, // 2:00 – 3:00
+    { hour: 14, minute: 30 }, // 2:30 – 3:30
+    { hour: 15, minute: 0  }, // 3:00 – 4:00
+  ];
 }
 
-function formatSlotLabel(startHour: number): string {
-  const fmt = (h: number) => {
+function formatSlotLabel(hour: number, minute: number): string {
+  const fmt = (h: number, m: number) => {
     const suffix = h >= 12 ? 'PM' : 'AM';
     const display = h > 12 ? h - 12 : h;
-    return `${display}:00 ${suffix}`;
+    return m === 0 ? `${display}:00 ${suffix}` : `${display}:30 ${suffix}`;
   };
-  return `${fmt(startHour)} – ${fmt(startHour + 1)}`;
+  const endTotalMinutes = hour * 60 + minute + 60;
+  const endHour = Math.floor(endTotalMinutes / 60);
+  const endMinute = endTotalMinutes % 60;
+  return `${fmt(hour, minute)} – ${fmt(endHour, endMinute)}`;
 }
 
 function overlaps(
@@ -56,29 +68,24 @@ export async function getAvailableSlots(): Promise<Slot[]> {
   const slots: Slot[] = [];
 
   for (const day of days) {
-    // Work in CT local time
     const zonedDay = toZonedTime(day, TZ);
     const weekend = isWeekend(zonedDay);
-    const candidates = weekend ? weekendSlots(zonedDay) : weekdaySlots(zonedDay);
+    const candidates = weekend ? weekendSlots() : weekdaySlots();
 
-    for (const { hour } of candidates) {
-      // Build slot start/end in CT, convert to UTC
+    for (const { hour, minute } of candidates) {
       const slotStartLocal = new Date(
         zonedDay.getFullYear(),
         zonedDay.getMonth(),
         zonedDay.getDate(),
-        hour, 0, 0, 0
+        hour, minute, 0, 0
       );
-      const slotEndLocal = new Date(slotStartLocal);
-      slotEndLocal.setHours(slotEndLocal.getHours() + 1);
+      const slotEndLocal = new Date(slotStartLocal.getTime() + 60 * 60 * 1000);
 
       const slotStart = fromZonedTime(slotStartLocal, TZ);
       const slotEnd = fromZonedTime(slotEndLocal, TZ);
 
-      // Skip slots in the past (with 2-hour buffer)
       if (slotStart.getTime() < now.getTime() + 2 * 60 * 60 * 1000) continue;
 
-      // Skip if any blocked event overlaps
       const blocked = blockedEvents.some((e) =>
         overlaps(slotStart, slotEnd, e.start, e.end)
       );
@@ -87,7 +94,7 @@ export async function getAvailableSlots(): Promise<Slot[]> {
       slots.push({
         start: slotStart.toISOString(),
         end: slotEnd.toISOString(),
-        label: formatSlotLabel(hour),
+        label: formatSlotLabel(hour, minute),
       });
     }
   }

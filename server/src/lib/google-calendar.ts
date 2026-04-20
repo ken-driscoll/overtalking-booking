@@ -46,26 +46,33 @@ export async function createEvent(
     summary,
     guestEmail,
     guestName,
+    zoomJoinUrl,
   }: {
     start: Date;
     end: Date;
     summary: string;
     guestEmail: string;
     guestName: string;
+    zoomJoinUrl?: string;
   }
 ): Promise<string> {
   const auth = getOAuth2Client();
   const calendar = google.calendar({ version: 'v3', auth });
+
+  const description = zoomJoinUrl
+    ? `Recording session with ${guestName} on the Overtalking Podcast.\n\nJoin Zoom Meeting: ${zoomJoinUrl}`
+    : `Recording session with ${guestName} on the Overtalking Podcast.`;
 
   const res = await calendar.events.insert({
     calendarId,
     sendUpdates: 'all',
     requestBody: {
       summary,
+      location: zoomJoinUrl,
       start: { dateTime: start.toISOString(), timeZone: 'America/Chicago' },
       end: { dateTime: end.toISOString(), timeZone: 'America/Chicago' },
       attendees: [{ email: guestEmail, displayName: guestName }],
-      description: `Recording session with ${guestName} on the Overtalking Podcast.`,
+      description,
     },
   });
 
