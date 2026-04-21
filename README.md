@@ -20,7 +20,13 @@ Guest booking site for the [Overtalking Podcast](https://overtalkingpod.libsyn.c
 - Add scope `meeting:write:meeting:admin` and activate the app
 - Copy the Account ID, Client ID, and Client Secret
 
-### 3. Environment
+### 3. Pushover (optional)
+
+- Create an app at [pushover.net](https://pushover.net) to get a token
+- Copy your user key from the Pushover dashboard
+- If not set, booking notifications are silently skipped
+
+### 4. Environment
 
 ```bash
 cp .env.example .env
@@ -28,7 +34,7 @@ cp client/.env.example client/.env.local
 # Fill in all values
 ```
 
-### 4. Run
+### 5. Run
 
 ```bash
 npm install

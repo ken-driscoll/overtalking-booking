@@ -31,7 +31,8 @@ Vite proxies `/api/*` to Express in dev (`client/vite.config.ts`), so the client
 **Booking flow (`POST /api/book`):**
 1. Creates a Zoom meeting via Server-to-Server OAuth (`server/src/lib/zoom.ts`)
 2. Creates a Google Calendar event on the Overtalking recordings calendar with the guest as an attendee and the Zoom join URL in the location/description (`server/src/lib/google-calendar.ts`)
-3. Returns `{ eventLink, zoomJoinUrl }` to the client
+3. Sends a Pushover push notification to the host with guest name, email, and formatted CT start time (`server/src/lib/pushover.ts`) — fire-and-forget, failure doesn't affect the booking response
+4. Returns `{ eventLink, zoomJoinUrl }` to the client
 
 **Slot availability (`GET /api/slots`):** Fetches events from both the recordings calendar and the blackout calendar for the next 8 weeks, then filters a generated list of candidate slots against them. Weekdays: 7:00 PM CT only. Weekends: 1:00, 1:30, 2:00, 2:30, 3:00 PM CT (all ending by 4 PM). All slot logic is in `server/src/lib/slots.ts`, timezone handled with `date-fns-tz` using `America/Chicago`.
 
