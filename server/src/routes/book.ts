@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { createEvent } from '../lib/google-calendar.js';
 import { createZoomMeeting } from '../lib/zoom.js';
+import { sendPushoverNotification } from '../lib/pushover.js';
 
 const router = Router();
 
@@ -49,6 +50,16 @@ router.post('/', async (req, res) => {
       guestName: user.name,
       zoomJoinUrl,
     });
+
+    const startLabel = new Date(slotStart).toLocaleString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric',
+      hour: 'numeric', minute: '2-digit',
+      timeZone: 'America/Chicago', timeZoneName: 'short',
+    });
+    sendPushoverNotification(
+      `New booking: ${summary}`,
+      `${user.name} (${user.email})\n${startLabel}`
+    ).catch((e) => console.error('Pushover error:', e));
 
     res.json({ ok: true, eventLink, zoomJoinUrl });
   } catch (err) {
