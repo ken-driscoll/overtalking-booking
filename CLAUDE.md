@@ -8,9 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Development (runs both Vite dev server on :5173 and Express on :3001 concurrently)
 npm run dev
 
-# Type-check only (no emit)
-npx tsc --project server/tsconfig.json --noEmit
-npx tsc --project client/tsconfig.json --noEmit
+# Type-check only (no emit) — use the local tsc binary, not npx tsc
+node_modules/typescript/bin/tsc --project server/tsconfig.json --noEmit
+node_modules/typescript/bin/tsc --project client/tsconfig.json --noEmit
 
 # Production build
 npm run build        # builds client then server
@@ -38,6 +38,17 @@ Vite proxies `/api/*` to Express in dev (`client/vite.config.ts`), so the client
 **Google Calendar** uses a pre-authorized refresh token stored in `.env` (`GOOGLE_REFRESH_TOKEN`) for the `overtalkingpod@gmail.com` account — no per-request OAuth needed. The OAuth2 client is created fresh per request in `google-calendar.ts`.
 
 **Zoom** uses Server-to-Server OAuth: exchanges `ZOOM_ACCOUNT_ID` + `ZOOM_CLIENT_ID` + `ZOOM_CLIENT_SECRET` for a short-lived access token on each meeting creation. No token caching — each booking makes a fresh token request.
+
+## Deploy
+
+Pushing to `main` triggers GitHub Actions (`.github/workflows/docker.yml`) which builds and pushes to `ghcr.io/ken-driscoll/overtalking-booking:latest`. Watchtower on infra-services (192.168.5.235) pulls the new image automatically at 3am daily. For an immediate redeploy, run on the Proxmox host (192.168.4.41):
+
+```bash
+pct exec 110 -- docker compose -f /opt/compose/compose.yml pull overtalking-booking \
+  && docker compose -f /opt/compose/compose.yml up -d overtalking-booking
+```
+
+The `.env` lives at `/opt/appdata/overtalking-booking/.env` on infra-services. `VITE_GOOGLE_CLIENT_ID` must also be set as a GitHub Actions secret for the build.
 
 ## Environment
 
