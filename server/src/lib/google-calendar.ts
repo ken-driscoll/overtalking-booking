@@ -1,4 +1,7 @@
 import { google } from 'googleapis';
+import { fromZonedTime } from 'date-fns-tz';
+
+const TZ = 'America/Chicago';
 
 function getOAuth2Client() {
   const client = new google.auth.OAuth2(
@@ -31,11 +34,21 @@ export async function listEvents(
     orderBy: 'startTime',
   });
 
-  return (res.data.items ?? []).map((e) => ({
-    start: e.start?.dateTime ?? e.start?.date ?? '',
-    end: e.end?.dateTime ?? e.end?.date ?? '',
-    summary: e.summary ?? '',
-  }));
+  return (res.data.items ?? []).map((e) => {
+    // Timed events have dateTime; all-day events have only date (e.g. "2026-04-24").
+    // Date-only strings must be parsed as CT midnight, not UTC midnight, otherwise
+    // a Friday blackout ends at 2026-04-25T00:00:00Z which equals the 7pm CT slot start.
+    const toUtc = (dt?: string | null, d?: string | null): string => {
+      if (dt) return dt;
+      if (d) return fromZonedTime(new Date(`${d}T00:00:00`), TZ).toISOString();
+      return '';
+    };
+    return {
+      start: toUtc(e.start?.dateTime, e.start?.date),
+      end: toUtc(e.end?.dateTime, e.end?.date),
+      summary: e.summary ?? '',
+    };
+  });
 }
 
 export async function createEvent(
