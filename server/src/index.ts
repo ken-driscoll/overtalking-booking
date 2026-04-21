@@ -15,6 +15,7 @@ import authRouter from './routes/auth.js';
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
+app.set('trust proxy', 1); // trust X-Forwarded-Proto from Nginx Proxy Manager
 app.use(express.json());
 
 app.use(
