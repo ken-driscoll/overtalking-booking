@@ -61,7 +61,6 @@ export async function getAvailableSlots(): Promise<Slot[]> {
     listEvents(process.env.RECORDINGS_CALENDAR_ID!, now, windowEnd),
     listEvents(process.env.BLACKOUT_CALENDAR_ID!, now, windowEnd),
   ]);
-  const blockedEvents = [...recordingEvents, ...blackoutEvents];
 
   const days = eachDayOfInterval({ start: startOfDay(now), end: startOfDay(windowEnd) });
 
@@ -69,6 +68,19 @@ export async function getAvailableSlots(): Promise<Slot[]> {
 
   for (const day of days) {
     const zonedDay = toZonedTime(day, TZ);
+
+    // If any recording exists on this calendar day, skip the whole day
+    const dayStart = fromZonedTime(
+      new Date(zonedDay.getFullYear(), zonedDay.getMonth(), zonedDay.getDate(), 0, 0, 0),
+      TZ
+    );
+    const dayEnd = fromZonedTime(
+      new Date(zonedDay.getFullYear(), zonedDay.getMonth(), zonedDay.getDate(), 23, 59, 59),
+      TZ
+    );
+    const hasRecording = recordingEvents.some((e) => overlaps(dayStart, dayEnd, e.start, e.end));
+    if (hasRecording) continue;
+
     const weekend = isWeekend(zonedDay);
     const candidates = weekend ? weekendSlots() : weekdaySlots();
 
@@ -86,7 +98,7 @@ export async function getAvailableSlots(): Promise<Slot[]> {
 
       if (slotStart.getTime() < now.getTime() + 2 * 60 * 60 * 1000) continue;
 
-      const blocked = blockedEvents.some((e) =>
+      const blocked = blackoutEvents.some((e) =>
         overlaps(slotStart, slotEnd, e.start, e.end)
       );
       if (blocked) continue;
