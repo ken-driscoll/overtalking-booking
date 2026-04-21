@@ -1,0 +1,11 @@
+services:
+  overtalking-booking:
+    image: ghcr.io/ken-driscoll/overtalking-booking:latest
+    container_name: overtalking-booking
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
