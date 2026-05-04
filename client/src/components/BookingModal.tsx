@@ -86,7 +86,7 @@ export default function BookingModal({ slot, onClose, onBooked }: Props) {
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full bg-ot-black text-ot-yellow font-display text-lg rounded-xl py-4 disabled:opacity-50 active:scale-95 transition-transform shadow-lg"
+          className="w-full bg-ot-yellow text-ot-onbg font-display text-lg rounded-xl py-4 disabled:opacity-50 active:scale-95 transition-transform shadow-lg"
         >
           {submitting ? 'Booking…' : 'Confirm Booking'}
         </button>
