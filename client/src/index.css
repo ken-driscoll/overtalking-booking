@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --ot-on-bg: 26 26 26;    /* #1A1A1A dark — default text on yellow */
+}
+
+:root[data-theme="october"] {
+  --ot-on-bg: 26 26 26;    /* dark text on orange */
+}
+
+:root[data-theme="december"] {
+  --ot-on-bg: 255 255 255;  /* white text on green */
+}
+
+/* Themed background overrides — literal colors so Dark Reader can parse them correctly */
+html[data-theme="october"] body,
+html[data-theme="october"] .bg-ot-yellow { background-color: rgb(232 107 0); }
+html[data-theme="october"] .bg-ot-yellow\/95 { background-color: rgb(232 107 0 / 0.95); }
+
+html[data-theme="december"] body,
+html[data-theme="december"] .bg-ot-yellow { background-color: rgb(27 112 51); }
+html[data-theme="december"] .bg-ot-yellow\/95 { background-color: rgb(27 112 51 / 0.95); }
+
 * {
   -webkit-tap-highlight-color: transparent;
 }

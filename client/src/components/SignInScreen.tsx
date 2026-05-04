@@ -3,9 +3,10 @@ import type { User } from '../App.tsx';
 
 interface Props {
   onSignIn: (user: User) => void;
+  coverImage: string;
 }
 
-export default function SignInScreen({ onSignIn }: Props) {
+export default function SignInScreen({ onSignIn, coverImage }: Props) {
   const login = useGoogleLogin({
     onSuccess: async (response) => {
       // Exchange access token for ID token via our backend
@@ -27,23 +28,23 @@ export default function SignInScreen({ onSignIn }: Props) {
       <div className="w-full max-w-sm flex flex-col items-center gap-6">
         {/* Podcast cover art */}
         <img
-          src="/images/ot-cover.png"
+          src={coverImage}
           alt="Overtalking Podcast"
           className="w-64 h-64 rounded-2xl shadow-2xl object-cover"
         />
 
         {/* Heading */}
         <div className="text-center">
-          <h1 className="font-display text-3xl text-ot-black leading-tight">
+          <h1 className="font-display text-3xl text-ot-onbg leading-tight">
             Book a Recording
           </h1>
-          <p className="mt-2 text-ot-black/70 text-base font-medium">
+          <p className="mt-2 text-ot-onbg/70 text-base font-medium">
             with Ken &amp; CJ on Overtalking
           </p>
         </div>
 
         {/* Description */}
-        <p className="text-center text-ot-black/60 text-sm leading-relaxed max-w-xs">
+        <p className="text-center text-ot-onbg/60 text-sm leading-relaxed max-w-xs">
           Sign in with Google to see available recording times and grab your seat.
         </p>
 

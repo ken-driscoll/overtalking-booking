@@ -6,7 +6,8 @@ export default {
       colors: {
         ot: {
           yellow: '#FDC02F',
-          black: '#1A1A1A',
+          black: 'rgb(26 26 26 / <alpha-value>)',
+          onbg: 'rgb(var(--ot-on-bg) / <alpha-value>)',
         },
       },
       fontFamily: {

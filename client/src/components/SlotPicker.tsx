@@ -7,9 +7,10 @@ import type { User } from '../App.tsx';
 interface Props {
   user: User;
   onSignOut: () => void;
+  coverImage: string;
 }
 
-export default function SlotPicker({ user, onSignOut }: Props) {
+export default function SlotPicker({ user, onSignOut, coverImage }: Props) {
   const { groups, loading, error, refetch } = useSlots();
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [booked, setBooked] = useState(false);
@@ -23,10 +24,10 @@ export default function SlotPicker({ user, onSignOut }: Props) {
   if (booked) {
     return (
       <div className="min-h-dvh bg-ot-yellow flex flex-col items-center justify-center px-6 text-center gap-6">
-        <img src="/images/ot-cover.png" alt="Overtalking" className="w-40 h-40 rounded-2xl shadow-xl" />
+        <img src={coverImage} alt="Overtalking" className="w-40 h-40 rounded-2xl shadow-xl" />
         <div>
-          <h2 className="font-display text-3xl text-ot-black">You're booked!</h2>
-          <p className="mt-2 text-ot-black/70 text-base">
+          <h2 className="font-display text-3xl text-ot-onbg">You're booked!</h2>
+          <p className="mt-2 text-ot-onbg/70 text-base">
             Check your email for a calendar invite from Ken &amp; CJ.
           </p>
         </div>
@@ -43,18 +44,18 @@ export default function SlotPicker({ user, onSignOut }: Props) {
   return (
     <div className="min-h-dvh bg-ot-yellow flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-ot-yellow/95 backdrop-blur-sm px-4 pt-safe-top pt-4 pb-3 border-b border-ot-black/10">
+      <header className="sticky top-0 z-10 bg-ot-yellow/95 backdrop-blur-sm px-4 pt-safe-top pt-4 pb-3 border-b border-ot-onbg/10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/images/ot-favicon.png" alt="" className="w-9 h-9 rounded-lg" />
+            <img src={coverImage} alt="" className="w-9 h-9 rounded-lg object-cover" />
             <div>
-              <p className="font-display text-lg text-ot-black leading-none">Overtalking</p>
-              <p className="text-xs text-ot-black/60 font-medium">Book a recording</p>
+              <p className="font-display text-lg text-ot-onbg leading-none">Overtalking</p>
+              <p className="text-xs text-ot-onbg/60 font-medium">Book a recording</p>
             </div>
           </div>
           <button
             onClick={handleSignOut}
-            className="text-sm text-ot-black/60 font-medium py-1 px-3 rounded-lg hover:bg-ot-black/10 transition-colors"
+            className="text-sm text-ot-onbg/60 font-medium py-1 px-3 rounded-lg hover:bg-ot-onbg/10 transition-colors"
           >
             Sign out
           </button>
@@ -63,10 +64,10 @@ export default function SlotPicker({ user, onSignOut }: Props) {
 
       {/* Greeting */}
       <div className="px-4 pt-5 pb-2 max-w-lg mx-auto w-full">
-        <p className="text-ot-black font-semibold text-base">
+        <p className="text-ot-onbg font-semibold text-base">
           Hey {user.name.split(' ')[0]}! Pick a time below.
         </p>
-        <p className="text-ot-black/60 text-sm mt-0.5">
+        <p className="text-ot-onbg/60 text-sm mt-0.5">
           All times in Central Time. Sessions are 1 hour.
         </p>
       </div>
@@ -75,7 +76,7 @@ export default function SlotPicker({ user, onSignOut }: Props) {
       <main className="flex-1 px-4 pb-10 max-w-lg mx-auto w-full">
         {loading && (
           <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-4 border-ot-black border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-ot-onbg border-t-transparent rounded-full animate-spin" />
           </div>
         )}
 
@@ -89,7 +90,7 @@ export default function SlotPicker({ user, onSignOut }: Props) {
         )}
 
         {!loading && !error && groups.length === 0 && (
-          <div className="text-center py-16 text-ot-black/60">
+          <div className="text-center py-16 text-ot-onbg/60">
             <p className="text-lg font-semibold">No slots available right now.</p>
             <p className="text-sm mt-1">Check back soon!</p>
           </div>
@@ -97,7 +98,7 @@ export default function SlotPicker({ user, onSignOut }: Props) {
 
         {groups.map((group) => (
           <div key={group.dateLabel} className="mt-5">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-ot-black/50 mb-2 px-1">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-ot-onbg/50 mb-2 px-1">
               {group.dateLabel}
             </h3>
             <div className="flex flex-col gap-2">
@@ -111,7 +112,7 @@ export default function SlotPicker({ user, onSignOut }: Props) {
                     <p className="font-semibold text-ot-black text-base">{slot.label}</p>
                     <p className="text-gray-400 text-xs mt-0.5">1 hour · Central Time</p>
                   </div>
-                  <span className="bg-ot-yellow text-ot-black text-sm font-bold rounded-xl px-4 py-2">
+                  <span className="bg-ot-yellow text-ot-onbg text-sm font-bold rounded-xl px-4 py-2">
                     Book
                   </span>
                 </button>
