@@ -43,6 +43,18 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+## Seasonal themes
+
+Append `?theme=october` or `?theme=december` to the URL to activate a seasonal theme. Each theme swaps the background color and cover art:
+
+| Theme | URL param | Background |
+|---|---|---|
+| Default | *(none)* | Yellow (#FDC02F) |
+| Halloween | `?theme=october` | Orange (#E86B00) |
+| Christmas | `?theme=december` | Green (#1B7033) |
+
+Theme images live in `client/public/images/`. To add a new theme, add an entry to the `THEMES` object in `client/src/App.tsx`, drop the cover image in `public/images/`, and add background-color overrides in `client/src/index.css`.
+
 ## Deploy
 
 ```bash
