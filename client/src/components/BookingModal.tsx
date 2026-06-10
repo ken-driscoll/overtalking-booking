@@ -14,7 +14,11 @@ export default function BookingModal({ slot, onClose, onBooked }: Props) {
   const [topic, setTopic] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bookedMovies, setBookedMovies] = useState<string[]>([]);
+  const [moviesLoading, setMoviesLoading] = useState(isOctober);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const availableMovies = STEPHEN_KING_MOVIES.filter((m) => !bookedMovies.includes(m));
 
   const timeLabel = new Date(slot.start).toLocaleString('en-US', {
     weekday: 'long',
@@ -32,6 +36,19 @@ export default function BookingModal({ slot, onClose, onBooked }: Props) {
     setTimeout(() => inputRef.current?.focus(), 300);
     return () => { document.body.style.overflow = ''; };
   }, []);
+
+  useEffect(() => {
+    // October only: hide films already booked within ±2 months. On failure, fall
+    // back to the full list so booking still works.
+    if (!isOctober) return;
+    let active = true;
+    fetch('/api/booked-movies')
+      .then((r) => (r.ok ? r.json() as Promise<string[]> : []))
+      .then((data) => { if (active) setBookedMovies(data); })
+      .catch(() => { /* keep full list */ })
+      .finally(() => { if (active) setMoviesLoading(false); });
+    return () => { active = false; };
+  }, [isOctober]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -80,9 +97,9 @@ export default function BookingModal({ slot, onClose, onBooked }: Props) {
             className="w-full appearance-none bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-base text-ot-black focus:outline-none focus:border-ot-black transition-colors mb-6 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
           >
             <option value="" disabled>
-              Choose a movie…
+              {moviesLoading ? 'Loading films…' : 'Choose a movie…'}
             </option>
-            {STEPHEN_KING_MOVIES.map((movie) => (
+            {availableMovies.map((movie) => (
               <option key={movie} value={movie}>
                 {movie}
               </option>

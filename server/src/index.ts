@@ -11,6 +11,7 @@ import cookieSession from 'cookie-session';
 import slotsRouter from './routes/slots.js';
 import bookRouter from './routes/book.js';
 import authRouter from './routes/auth.js';
+import bookedMoviesRouter from './routes/bookedMovies.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -31,6 +32,7 @@ app.use(
 app.use('/api/auth', authRouter);
 app.use('/api/slots', slotsRouter);
 app.use('/api/book', bookRouter);
+app.use('/api/booked-movies', bookedMoviesRouter);
 
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, '../../client/dist');
