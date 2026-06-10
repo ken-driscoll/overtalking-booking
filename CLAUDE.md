@@ -42,6 +42,8 @@ Vite proxies `/api/*` to Express in dev (`client/vite.config.ts`), so the client
 
 **Seasonal themes (`?theme=october` / `?theme=december`):** A `theme` URL query param activates a seasonal skin. `App.tsx` reads the param at module load (synchronously, before first render), sets `data-theme` on `<html>`, and passes a `coverImage` path as a prop to child components. Background colors are applied via CSS override selectors in `index.css` (`html[data-theme="october"] .bg-ot-yellow { ... }`) so the literal `#FDC02F` Tailwind token is preserved and Dark Reader can parse it correctly. The October theme also injects `<meta name="darkreader-lock">` to prevent Dark Reader from shifting orange to green. Text contrast is handled by a single CSS variable `--ot-on-bg` (dark for yellow/orange, white for green), exposed as the `ot-onbg` Tailwind token. To add a theme: add an entry to `THEMES` in `App.tsx`, add the cover image to `client/public/images/`, and add `--ot-on-bg` and `bg-ot-yellow` overrides in `index.css`.
 
+The October theme additionally swaps the booking modal's free-text "Movie or topic" input for a **required** dropdown of pre-2010 Stephen King films (`client/src/data/stephenKingMovies.ts`, formatted `"Title (Year)"`). `BookingModal.tsx` reads the exported `theme` constant from `App.tsx` to detect October (`isOctober`); the selected value flows through the existing `topic` field, so no server changes are involved.
+
 ## Deploy
 
 Pushing to `main` triggers GitHub Actions (`.github/workflows/docker.yml`) which builds and pushes to `ghcr.io/ken-driscoll/overtalking-booking:latest`. Watchtower on infra-services (192.168.5.235) pulls the new image automatically at 3am daily. For an immediate redeploy, run on the Proxmox host (192.168.4.41):

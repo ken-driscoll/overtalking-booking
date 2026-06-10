@@ -1,0 +1,26 @@
+// Pre-2010 Stephen King films, formatted "Title (Year)" so the value can be used
+// directly as the booking topic. Shown in the October seasonal theme only.
+export const STEPHEN_KING_MOVIES: string[] = [
+  'The Shining (1980)',
+  'Creepshow (1982)',
+  'Cujo (1983)',
+  'The Dead Zone (1983)',
+  'Christine (1983)',
+  'Children of the Corn (1984)',
+  'Firestarter (1984)',
+  "Cat's Eye (1985)",
+  'Silver Bullet (1985)',
+  'Maximum Overdrive (1986)',
+  'Pet Sematary (1989)',
+  'Graveyard Shift (1990)',
+  'Misery (1990)',
+  'Sometimes They Come Back (1991)',
+  'Sleepwalkers (1992)',
+  'The Dark Half (1993)',
+  'Needful Things (1993)',
+  'The Mangler (1995)',
+  'Thinner (1996)',
+  'The Night Flier (1997)',
+  'Riding the Bullet (2004)',
+  'The Mist (2007)',
+];

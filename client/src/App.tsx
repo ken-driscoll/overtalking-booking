@@ -22,7 +22,7 @@ function resolveTheme(): { id: ThemeId | null; coverImage: string } {
   return { id: null, coverImage: '/images/ot-cover.png' };
 }
 
-const theme = resolveTheme();
+export const theme = resolveTheme();
 
 // Run synchronously before first render so Dark Reader sees these before analyzing.
 if (theme.id) {
