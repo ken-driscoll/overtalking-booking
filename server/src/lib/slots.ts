@@ -5,6 +5,26 @@ import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 const TZ = 'America/Chicago';
 const WEEKS_AHEAD = 8;
 
+// Blackout events belonging to a cohost the recording doesn't need. Requesting
+// ?solo=cj makes CJ's blackouts non-blocking; a slot blocked by anything else
+// stays blocked. Add a name here to make it available to the param.
+const SOLO_PATTERNS = { cj: /\bcj\b/i, ken: /\bken\b/i } as const;
+
+export type SoloName = keyof typeof SOLO_PATTERNS;
+
+// Unknown names are dropped silently, so a typo degrades to normal behavior.
+// hasOwnProperty, not `in`: `in` would let inherited keys like "constructor"
+// through and blow up on SOLO_PATTERNS[name].test().
+export function parseSoloNames(raw: unknown): SoloName[] {
+  if (typeof raw !== 'string') return [];
+  return raw
+    .split(',')
+    .map((n) => n.trim().toLowerCase())
+    .filter((n): n is SoloName =>
+      Object.prototype.hasOwnProperty.call(SOLO_PATTERNS, n)
+    );
+}
+
 export interface Slot {
   start: string; // ISO string (UTC)
   end: string;   // ISO string (UTC)
@@ -53,7 +73,7 @@ function overlaps(
   return ss < ee && se > es;
 }
 
-export async function getAvailableSlots(): Promise<Slot[]> {
+export async function getAvailableSlots(soloNames: SoloName[] = []): Promise<Slot[]> {
   const now = new Date();
   const windowEnd = addWeeks(now, WEEKS_AHEAD);
 
@@ -61,6 +81,14 @@ export async function getAvailableSlots(): Promise<Slot[]> {
     listEvents(process.env.RECORDINGS_CALENDAR_ID!, now, windowEnd),
     listEvents(process.env.BLACKOUT_CALENDAR_ID!, now, windowEnd),
   ]);
+
+  // Dropping the ignorable events up front means a slot only opens up when every
+  // event blocking it is ignorable — one unrelated blackout still blocks it.
+  const activeBlackouts = soloNames.length
+    ? blackoutEvents.filter(
+        (e) => !soloNames.some((name) => SOLO_PATTERNS[name].test(e.summary))
+      )
+    : blackoutEvents;
 
   const days = eachDayOfInterval({ start: startOfDay(now), end: startOfDay(windowEnd) });
 
@@ -98,7 +126,7 @@ export async function getAvailableSlots(): Promise<Slot[]> {
 
       if (slotStart.getTime() < now.getTime() + 2 * 60 * 60 * 1000) continue;
 
-      const blocked = blackoutEvents.some((e) =>
+      const blocked = activeBlackouts.some((e) =>
         overlaps(slotStart, slotEnd, e.start, e.end)
       );
       if (blocked) continue;

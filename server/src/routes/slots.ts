@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAvailableSlots } from '../lib/slots.js';
+import { getAvailableSlots, parseSoloNames } from '../lib/slots.js';
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    const slots = await getAvailableSlots();
+    const slots = await getAvailableSlots(parseSoloNames(req.query.solo));
     res.json(slots);
   } catch (err) {
     console.error('Failed to fetch slots:', err);
