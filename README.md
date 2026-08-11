@@ -55,6 +55,20 @@ Append `?theme=october` or `?theme=december` to the URL to activate a seasonal t
 
 Theme images live in `client/public/images/`. To add a new theme, add an entry to the `THEMES` object in `client/src/App.tsx`, drop the cover image in `public/images/`, and add background-color overrides in `client/src/index.css`.
 
+## Solo recordings
+
+Not every recording needs every cohost. Append `?solo=` with a comma-separated list of names to stop that person's blackout dates from hiding slots:
+
+| URL param | Effect |
+|---|---|
+| `?solo=cj` | Blackout events mentioning CJ no longer block slots |
+| `?solo=ken` | Same for Ken |
+| `?solo=cj,ken` | Both |
+
+Names are matched case-insensitively against the blackout event title on a word boundary, so `CJ`, `CJ busy`, `cj - work trip`, and `Out: CJ` all count as CJ's. A slot only opens up when *every* blackout covering it is ignorable — an overlapping `Vacation` still blocks it. Unrecognized names are ignored.
+
+This is independent of `?theme=`; combine them freely (`?theme=october&solo=cj`). To make another person available to the param, add them to `SOLO_PATTERNS` in `server/src/lib/slots.ts`.
+
 ## Deploy
 
 ```bash

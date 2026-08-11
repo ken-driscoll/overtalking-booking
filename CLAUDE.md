@@ -36,6 +36,8 @@ Vite proxies `/api/*` to Express in dev (`client/vite.config.ts`), so the client
 
 **Slot availability (`GET /api/slots`):** Fetches events from both the recordings calendar and the blackout calendar for the next 8 weeks, then filters a generated list of candidate slots against them. Weekdays: 7:00 PM CT only. Weekends: 1:00, 1:30, 2:00, 2:30, 3:00 PM CT (all ending by 4 PM). All slot logic is in `server/src/lib/slots.ts`, timezone handled with `date-fns-tz` using `America/Chicago`.
 
+The route accepts an optional `?solo=cj,ken` query param, forwarded verbatim by `useSlots.ts` from the page URL and validated server-side by `parseSoloNames`. Each name maps to a word-boundary regex in `SOLO_PATTERNS`; matching blackout events are dropped from the list *before* slots are tested against it, so a slot only frees up when every blackout covering it is ignorable. This is orthogonal to the seasonal themes — no theme implies a `solo` value.
+
 **Google Calendar** uses a pre-authorized refresh token stored in `.env` (`GOOGLE_REFRESH_TOKEN`) for the `overtalkingpod@gmail.com` account — no per-request OAuth needed. The OAuth2 client is created fresh per request in `google-calendar.ts`.
 
 **Zoom** uses Server-to-Server OAuth: exchanges `ZOOM_ACCOUNT_ID` + `ZOOM_CLIENT_ID` + `ZOOM_CLIENT_SECRET` for a short-lived access token on each meeting creation. No token caching — each booking makes a fresh token request.

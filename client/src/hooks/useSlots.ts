@@ -36,7 +36,10 @@ export function useSlots() {
   const fetchSlots = () => {
     setLoading(true);
     setError(null);
-    fetch('/api/slots')
+    // Forwarded verbatim; the server validates the names.
+    const solo = new URLSearchParams(window.location.search).get('solo');
+    const url = solo ? `/api/slots?solo=${encodeURIComponent(solo)}` : '/api/slots';
+    fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load slots');
         return r.json() as Promise<Slot[]>;
